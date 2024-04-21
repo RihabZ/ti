@@ -2,6 +2,7 @@ package com.rihab.interventions.restControllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +34,7 @@ public List<Ticket> getAllTickets() {
 
 
 @RequestMapping(value="/getByCode/{interCode}",method = RequestMethod.GET)
-public Ticket getTicketionById(@PathVariable("interCode") String interCode) {
+public Ticket getTicketionById(@PathVariable("interCode") UUID interCode) {
 	return ticketService.getTicket(interCode);
  }
 
@@ -55,7 +56,7 @@ public Ticket updateTicket(@RequestBody Ticket ticket) {
 @PreAuthorize("hasAuthority('CLIENT')")
 @RequestMapping(value="/deleteTicket/{interCode}",method = RequestMethod.DELETE)
 
-public void deleteTicket(@PathVariable("interCode") String interCode)
+public void deleteTicket(@PathVariable("interCode") UUID interCode)
 {
 	ticketService.deleteTicketByCode(interCode);
 }

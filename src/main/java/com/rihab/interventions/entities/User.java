@@ -37,12 +37,24 @@ private String email;
 private Boolean enabled;
 @Enumerated(value = EnumType.STRING)
 private Role role;
+@Column(columnDefinition = "VARCHAR(1) DEFAULT 'M'")
 private String sexe;
 private String tel;
-private String age;
+private int age;
 
 private Date dateEmbauche;
 
+@OneToOne
+private Demandeur demandeur;
+
+
+@OneToOne
+private Technicien technicien;
+
+
+
+@OneToOne
+private Manager manager;
 
 
 @Override

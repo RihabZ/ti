@@ -2,6 +2,7 @@ package com.rihab.interventions.service;
 
 
 import java.util.List;
+import java.util.UUID;
 
 import com.rihab.interventions.entities.Ticket;
 
@@ -11,8 +12,8 @@ public interface TicketService {
 	Ticket saveTicket(Ticket inter) ;
 	Ticket updateTicket(Ticket inter);
 void deleteTicket(Ticket inter);
- void deleteTicketByCode(String code);
- Ticket getTicket(String code);
+ void deleteTicketByCode(UUID code);
+ Ticket getTicket(UUID code);
 List<Ticket> getAllTickets();
 
 List<Ticket> findByInterDesignation(String desing);

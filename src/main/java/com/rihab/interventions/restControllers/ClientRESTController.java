@@ -24,6 +24,7 @@ public class ClientRESTController {
 	@Autowired
 	ClientService clientService;
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 @RequestMapping(path="allClients",method = RequestMethod.GET)
 public List<Client> getAllClients() {
 	return clientService.getAllClients();

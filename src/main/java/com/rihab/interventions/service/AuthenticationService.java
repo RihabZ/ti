@@ -1,6 +1,7 @@
 package com.rihab.interventions.service;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,18 +13,27 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.rihab.interventions.dto.UserDTO;
 import com.rihab.interventions.entities.AuthenticationResponse;
+import com.rihab.interventions.entities.Client;
+import com.rihab.interventions.entities.Demandeur;
+import com.rihab.interventions.entities.Departement;
+import com.rihab.interventions.entities.Manager;
 import com.rihab.interventions.entities.Role;
+import com.rihab.interventions.entities.Technicien;
 import com.rihab.interventions.entities.User;
+import com.rihab.interventions.repos.DemandeurRepository;
+import com.rihab.interventions.repos.ManagerRepository;
+import com.rihab.interventions.repos.TechnicienRepository;
 import com.rihab.interventions.repos.UserRepository;
 import com.rihab.interventions.util.EmailSender;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @Service
 public class AuthenticationService {
 
@@ -32,27 +42,13 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final EmailSender emailSender;
     private final UserDetailsService userDetailsService;
+    private final DemandeurRepository demandeurRepository;
+    private final TechnicienRepository technicienRepository;
     //private final TokenRepository tokenRepository;
-
+    private final ManagerRepository managerRepository;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationService(UserRepository repository,
-                                 PasswordEncoder passwordEncoder,
-                                 JwtService jwtService,
-                               EmailSender emailSender
-                                 //TokenRepository tokenRepository,
-                               ,UserDetailsService userDetailsService
-                                 ,AuthenticationManager authenticationManager) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.emailSender=emailSender;
-        this.userDetailsService=userDetailsService;
-       // this.tokenRepository = tokenRepository;
-        this.authenticationManager = authenticationManager;
-    }
-
-    public AuthenticationResponse register(User request) {
+    public AuthenticationResponse register(UserDTO request) {
         try {
             // Vérifier si l'utilisateur existe déjà
             if (repository.findByUsername(request.getUsername()).isPresent()) {
@@ -78,7 +74,46 @@ public class AuthenticationService {
            
             // Récupérer le rôle de l'utilisateur
             Role role = user.getRole();
+            System.out.println("role"+role);
+            	 if(role.equals(Role.CLIENT)) {
+            		 Demandeur demandeur=new Demandeur();
+            		 demandeur.setPost(request.getPost());
+            		 demandeur.setUser(user);
+            		 demandeur.setClient(Client.builder().codeClient(request.getCodeClient()).build());
+            		 demandeurRepository.save(demandeur);
+            		 user.setDemandeur(demandeur);
+            		  repository.save(user);
+            	 }
+            	 else if(role.equals(Role.TECHNICIEN)) {
+            		 Technicien technicien=new Technicien();
+            		 technicien.setCivilite(request.getCivilite());
+            		 technicien.setMatricule(request.getMatricule());
+            		 technicien.setResponsable(request.getResponsable());
+            		 technicien.setInternet(request.getInternet());
+            		 technicien.setNumeroAbrege(request.getNumeroAbrege());
+            		
+            		 technicien.setUser(user);
+            		 technicien.setDepartement(Departement.builder().codeDepart(request.getCodeDepart()).build());
+            		
+					technicienRepository.save(technicien);
+            		 user.setTechnicien(technicien);
+            		  repository.save(user);
+            	 }
+            	 
+            	 
+            	 else if(role.equals(Role.MANAGER)) {
+            		 Manager manager=new Manager();
+            		 manager.setCivilite(request.getCivilite());
+            		 manager.setUser(user);
+            		
+            		
+					managerRepository.save(manager);
+            		 user.setManager(manager);
+            		  repository.save(user);
+            	 }
 
+            	 
+            	 
             // Générer le token JWT en tenant compte du rôle de l'utilisateur
             String jwt = jwtService.generateTokenWithRole(user, role);
 
@@ -325,19 +360,30 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }*/
     
-    
   
-    // Méthode pour récupérer tous les utilisateurs
+ // Importez les classes nécessaires
+
     public List<UserDTO> getAllUsers() {
         List<User> users = repository.findAll();
         List<UserDTO> userDTOs = new ArrayList<>();
 
         for (User user : users) {
-            UserDTO userDTO = new UserDTO(user.getId(),user.getNom(), user.getPrenom(), user.getEmail(), user.getAge(),user.getTel(),user.getRole());
+            UserDTO userDTO = UserDTO.builder()
+                .id(user.getId())
+                .nom(user.getNom())
+                .prenom(user.getPrenom())
+                .email(user.getEmail())
+                .tel(user.getTel())
+                .age(user.getAge())
+                .role(user.getRole())
+                .sexe(user.getSexe())
+                .dateEmbauche(user.getDateEmbauche())
+                .build();
             userDTOs.add(userDTO);
         }
         return userDTOs;
     }
+
     // Méthode pour supprimer un utilisateur par son identifiant
     @Transactional
     public void deleteUser(Long userId) {

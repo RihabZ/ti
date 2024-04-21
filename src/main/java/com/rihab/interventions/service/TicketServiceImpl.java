@@ -1,5 +1,6 @@
 package com.rihab.interventions.service;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class TicketServiceImpl implements TicketService {
 @Override
 public Ticket saveTicket(Ticket inter)
 {
+	inter.setInterCode(UUID.randomUUID());
 return ticketRepository.save(inter);
 
 }
@@ -34,13 +36,13 @@ public void deleteTicket(Ticket inter) {
 
 
 @Override
-public void deleteTicketByCode(String code) {
+public void deleteTicketByCode(UUID code) {
 	ticketRepository.deleteById(code);
 }
 
 
 @Override
-public Ticket getTicket(String code) {
+public Ticket getTicket(UUID code) {
 return ticketRepository.findById(code).get();
 }
 

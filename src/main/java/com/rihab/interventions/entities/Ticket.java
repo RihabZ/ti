@@ -2,6 +2,7 @@ package com.rihab.interventions.entities;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rihab.interventions.entities.Demandeur;
@@ -13,20 +14,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 public class Ticket {
     @Id
     
-    @Column(name = "INTE_CODE", columnDefinition = "VARCHAR(10)", nullable = false)
-    private String interCode;
-
-    @Column(name = "INTE_DESIGNATION", columnDefinition = "VARCHAR(50)", nullable = false)
+    @Column(columnDefinition = "BINARY(16)")
+	private UUID interCode = UUID.randomUUID();
+     @Column(name = "INTE_DESIGNATION", columnDefinition = "VARCHAR(50)", nullable = false)
     private String interDesignation;
 
    
